@@ -1,0 +1,48 @@
+import requests
+import time
+import random
+from fake_useragent import UserAgent
+import pandas
+
+url = "https://docs.google.com/forms/d/e/1FAIpQLSfdnxQvdt8QTjGODVCSnckk_f1dv_IFeaeUVXRfF__euyIZbw/formResponse"
+ua = UserAgent()
+
+if __name__ == "__main__":
+
+    df = pandas.read_excel("wallets_form.xlsx", dtype=str)
+    df = df.fillna('')
+    columns = df.columns.tolist()
+    print(columns)
+    for _, row in df.iterrows():
+        address = row[columns[0]]
+        reason = row[columns[1]]
+        id = row[columns[2]]
+        social = row[columns[3]]
+        proxy = row[columns[4]]
+
+        headers = {
+            "User-Agent": ua.random
+        }
+
+        data = {
+            # Email Address
+            # "emailAddress": "test@gmail.com",
+            # Wallet address
+            "entry.645066375": address,
+            # Reason
+            "entry.558009528": reason,
+            # ID
+            "entry.1900319407": id,
+            # Socail
+            "entry.1091620476": social,
+            # Timestamp
+            "submissionTimestamp": int(time.time()*1000)
+        }
+
+        resp = requests.post(url, headers=headers, data=data, proxies=({"http": f"http://{proxy}"} if proxy else None))
+        if resp.status_code == 200:
+            print("Nice")
+        else:
+            print("Ooooops")
+
+        time.sleep(random.randint(200, 300))
